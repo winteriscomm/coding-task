@@ -1,27 +1,34 @@
 package com.coding.task.collector.impl;
 
 import com.coding.task.collector.Collector;
+import com.coding.task.formatter.DataFormatter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.StringJoiner;
 
 /**
  * Provides basic implementation for collecting data and processing result.
  */
-public abstract class AbstractCollector implements Collector {
+public class CategoryCollector implements Collector {
 
     private static final String COLON = ":";
 
-    private String name;
+    private String category;
 
-    public AbstractCollector(String name) {
-        this.name = name;
+    private DataFormatter formatter;
+
+    private List<String> data = new ArrayList<>();
+
+    public CategoryCollector(String category, DataFormatter formatter) {
+        this.category = category;
+        this.formatter = formatter;
     }
 
     @Override
-    public void collect(String data) {
-        Optional.of(data)
+    public void collect(String dataItem) {
+        Optional.of(dataItem)
                 .filter(StringUtils::isNotBlank)
                 .map(StringUtils::trim)
                 .filter(s -> !getCategory().equalsIgnoreCase(s))
@@ -29,19 +36,13 @@ public abstract class AbstractCollector implements Collector {
                 .ifPresent(this::addItem);
     }
 
-    /**
-     * Adds new data into internal collection.
-     *
-     * @param data to add
-     */
-    public abstract void addItem(String data);
+    private void addItem(String dataItem) {
+        data.add(dataItem);
+    }
 
     @Override
     public String getResult() {
-        StringJoiner result = new StringJoiner(System.lineSeparator());
-        addResult(result);
-
-        return Optional.of(result.toString())
+        return Optional.of(formatter.format(data))
                 .filter(StringUtils::isNotBlank)
                 .map(this::addCategoryName)
                 .orElse(StringUtils.EMPTY);
@@ -51,15 +52,8 @@ public abstract class AbstractCollector implements Collector {
         return getCategory() + COLON + System.lineSeparator() + data;
     }
 
-    /**
-     * Adds data to string joiner into desired format.
-     *
-     * @param result string joiner to processing result with line separator.
-     */
-    public abstract void addResult(StringJoiner result);
-
     @Override
     public String getCategory() {
-        return name;
+        return category;
     }
 }

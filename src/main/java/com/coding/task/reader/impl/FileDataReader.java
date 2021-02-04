@@ -2,6 +2,7 @@ package com.coding.task.reader.impl;
 
 import com.coding.task.collector.Collector;
 import com.coding.task.collector.CollectorManager;
+import com.coding.task.exception.ApplicationRunException;
 import com.coding.task.reader.DataReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
@@ -44,8 +45,7 @@ public class FileDataReader implements DataReader {
                     .toArray(), System.lineSeparator());
         } catch (FileNotFoundException e) {
             LOGGER.error(String.format(CANNOT_READ_DATA_FROM_FILE_MESSAGE, fileName), e);
+            throw new ApplicationRunException(String.format(CANNOT_READ_DATA_FROM_FILE_MESSAGE, fileName), e);
         }
-
-        return StringUtils.EMPTY;
     }
 }

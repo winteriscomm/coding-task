@@ -2,25 +2,24 @@ package com.coding.task.reader.impl;
 
 import com.coding.task.collector.Collector;
 import com.coding.task.collector.CollectorManager;
+import com.coding.task.exception.ApplicationRunException;
 import com.coding.task.reader.DataReader;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class FileDataReaderTest {
 
     private static final String RESULT_STRING = "result-string";
@@ -35,23 +34,19 @@ public class FileDataReaderTest {
     @Mock
     private Collector first;
 
-    @Before
-    public void init() {
-        when(collectorManager.getCollector(anyString())).thenReturn(first);
-        when(collectorManager.getCollectors()).thenReturn(Collections.singletonList(first));
-    }
-
     @Test
-    public void shouldReturnEmptyStringWhenScannerCannotBeCreated() {
+    public void shouldThrowExpectionWhenFileDoesNotExists() {
         DataReader dataReader = new FileDataReader(UNEXIST_FILE_NAME);
 
-        String result = dataReader.read(collectorManager);
-
-        assertTrue(StringUtils.isEmpty(result));
+        Assertions.assertThrows(ApplicationRunException.class, () -> {
+            dataReader.read(collectorManager);
+        });
     }
 
     @Test
     public void shouldReturnCollectorsResult() {
+        when(collectorManager.getCollector(anyString())).thenReturn(first);
+        when(collectorManager.getCollectors()).thenReturn(Collections.singletonList(first));
         when(first.getResult()).thenReturn(RESULT_STRING);
         String path = getClass().getClassLoader().getResource(TEST_FILE_NAME).getPath();
         DataReader dataReader = new FileDataReader(path);

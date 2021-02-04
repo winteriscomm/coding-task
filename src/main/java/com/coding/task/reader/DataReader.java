@@ -1,9 +1,6 @@
 package com.coding.task.reader;
 
-import com.coding.task.collector.Collector;
 import com.coding.task.collector.CollectorManager;
-
-import java.util.Map;
 
 /**
  * Interface to read and collect data
